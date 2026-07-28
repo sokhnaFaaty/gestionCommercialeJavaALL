@@ -9,13 +9,13 @@ import java.sql.SQLException;
 public class DatabaseConfig{
     
     // L'URL pour se connecter à MySQL
-    // "localhost" = le serveur est sur votre ordinateur
+    // "localhost" = le serveur de mon ordinateur
     // "3306" = le port par défaut de MySQL
-    // "gestion_commerciale" = le nom de votre base de données
+    // "gestion_commerciale" = le nom de notre base de donnee
     private static final String URL = "jdbc:mysql://localhost:3306/gestion_commercialeAll?useSSL=false&serverTimezone=UTC";
     
-    // L'utilisateur de MySQL (par défaut 'root')
-    private static final String USER = "root";
+    // L'utilisateur de MySQL 
+        private static final String USER = "root";
     
     
     private static final String PASSWORD = "";
