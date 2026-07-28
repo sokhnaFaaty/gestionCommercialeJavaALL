@@ -1,8 +1,8 @@
 package views;
 
-import entities.Facturation;
+import entities.Facture;
 import entities.Paiement;
-import services.FacturationService;
+import services.FactureService;
 import services.PaiementService;
 
 import java.util.Date;
@@ -10,12 +10,12 @@ import java.util.Scanner;
 
 public class PaiementView {
     private PaiementService service;
-    private FacturationService facturationService;
+    private FactureService factureService;
     private Scanner scanner;
 
-    public PaiementView(PaiementService service, FacturationService facturationService, Scanner scanner) {
+    public PaiementView(PaiementService service, FactureService factureService, Scanner scanner) {
         this.service = service;
-        this.facturationService = facturationService;
+        this.factureService = factureService;
         this.scanner = scanner;
     }
 
@@ -24,7 +24,7 @@ public class PaiementView {
         do {
             System.out.println("\n--- GESTION DES PAIEMENTS ---");
             System.out.println("1. Enregistrer un paiement pour une facture");
-            System.out.println("2. Afficher les paiements d'une facture");
+            System.out.println("2. Afficher tous les paiements");
             System.out.println("3. Retour au menu principal");
             System.out.print("Votre choix : ");
             choix = scanner.nextInt();
@@ -32,15 +32,15 @@ public class PaiementView {
 
             if (choix == 1) {
                 System.out.println("\nFactures disponibles :");
-                for (Facturation f : facturationService.listerFactures()) {
-                    f.toChaine();
+                for (Facture f : factureService.listerFactures()) {
+                    System.out.println(f.toChaine());
                 }
 
                 System.out.print("Entrez l'ID de la facture à payer : ");
                 int idFact = scanner.nextInt();
                 scanner.nextLine();
 
-                Facturation f = facturationService.rechercherParId(idFact);
+                Facture f = factureService.trouverParId(idFact);
                 if (f == null) {
                     System.out.println("Facture introuvable.");
                     continue;
@@ -60,12 +60,8 @@ public class PaiementView {
                 }
 
             } else if (choix == 2) {
-                System.out.print("Entrez l'ID de la facture concernée : ");
-                int idFact = scanner.nextInt();
-                scanner.nextLine();
-
-                System.out.println("\nHistorique des règlements pour cette facture :");
-                for (Paiement p : service.listerPaiementsParFacture(idFact)) {
+                System.out.println("\nHistorique global des règlements :");
+                for (Paiement p : service.listerTousLesPaiements()) {
                     p.toChaine();
                 }
             }
