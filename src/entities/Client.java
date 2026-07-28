@@ -4,65 +4,43 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Client {
-   private int id;
-   private String nom;
-   private String prenom;
-   private String telephone;
-   private List<Commande> commandes;
+    private int id;
+    private String nom;
+    private String prenom;
+    private String telephone;
+    private List<Commande> commandes;
 
-   public Client() {
-      this.commandes = new ArrayList();
-   }
+    public Client() {
+        this.commandes = new ArrayList<>();
+    }
 
-   public Client(int var1, String var2, String var3, String var4) {
-      this.id = var1;
-      this.nom = var2;
-      this.prenom = var3;
-      this.telephone = var4;
-      this.commandes = new ArrayList();
-   }
+    public Client(int id, String nom, String prenom, String telephone) {
+        this.id = id;
+        this.nom = nom;
+        this.prenom = prenom;
+        this.telephone = telephone;
+        this.commandes = new ArrayList<>();
+    }
 
-   public int getId() {
-      return this.id;
-   }
+    // Getters et Setters
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-   public void setId(int var1) {
-      this.id = var1;
-   }
+    public String getNom() { return nom; }
+    public void setNom(String nom) { this.nom = nom; }
 
-   public String getNom() {
-      return this.nom;
-   }
+    public String getPrenom() { return prenom; }
+    public void setPrenom(String prenom) { this.prenom = prenom; }
 
-   public void setNom(String var1) {
-      this.nom = var1;
-   }
+    public String getTelephone() { return telephone; }
+    public void setTelephone(String telephone) { this.telephone = telephone; }
 
-   public String getPrenom() {
-      return this.prenom;
-   }
+    public List<Commande> getCommandes() { return commandes; }
+    public void addCommande(Commande commande) { this.commandes.add(commande); }
 
-   public void setPrenom(String var1) {
-      this.prenom = var1;
-   }
+    public void toChaine() {
+        System.out.println("id=" + this.id + ", nom=" + this.nom + ", prenom=" + this.prenom + ", telephone=" + this.telephone);
+    }
 
-   public String getTelephone() {
-      return this.telephone;
-   }
 
-   public void setTelephone(String var1) {
-      this.telephone = var1;
-   }
-
-   public List<Commande> getCommandes() {
-      return this.commandes;
-   }
-
-   public void addCommande(Commande var1) {
-      this.commandes.add(var1);
-   }
-
-   public void toChaine() {
-      System.out.println("id=" + this.id + ", nom=" + this.nom + ", prenom=" + this.prenom + ", telephone=" + this.telephone);
-   }
 }

@@ -1,7 +1,7 @@
-package repository;
+package repositories;
 
 import entities.Client;
-import config.DatabaseConfig;
+import config.Database;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,11 +9,11 @@ import java.util.List;
 public class ClientRepository {
     
     // La configuration de la base de donnees
-    private DatabaseConfig dbConfig;
+    private Database dbConfig;
 
     // Constructeur : initialise la configuration et cree la table
     public ClientRepository() {
-        this.dbConfig = new DatabaseConfig();
+        this.dbConfig = new Database();
         initTable();
     }
 
