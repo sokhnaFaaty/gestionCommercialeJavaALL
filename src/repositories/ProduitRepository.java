@@ -1,8 +1,8 @@
 // Déclare que cette classe fait partie du package "repository" (couche d'accès aux données)
 package repositories;
 
-// Importe le Singleton qui fournit la connexion unique à la base de données
-import config.ConnexionBD;
+// Importe DatabaseConfig, qui fournit une nouvelle connexion à chaque appel de getConnection()
+import config.DatabaseConfig;
 // Importe l'entité Produit, l'objet métier principal manipulé par ce repository
 import entities.Produit;
 
@@ -15,18 +15,34 @@ import java.util.List;
 
 /**
  * Réalise les opérations SQL liées à la table "produit".
+ *
+ * Contrairement à la version précédente basée sur ConnexionBD (Singleton avec une
+ * connexion unique partagée par toute l'application), cette version utilise DatabaseConfig
+ * pour obtenir une nouvelle connexion à chaque appel de méthode. Chaque connexion est
+ * ouverte puis fermée automatiquement grâce au try-with-resources, ce qui évite de garder
+ * une connexion partagée ouverte trop longtemps et limite les risques de fuite de ressources.
  */
 public class ProduitRepository {
 
-    // Récupère la connexion unique partagée par toute l'application via le Singleton
-    private Connection connection = ConnexionBD.getInstance().getConnection();
+    // Fournit une nouvelle connexion à la base de données à chaque appel de getConnection()
+    private DatabaseConfig dbConfig = new DatabaseConfig();
 
-    // Insère un nouveau produit en base de données
+    /**
+     * Insère un nouveau produit en base de données.
+     *
+     * @param produit le produit à insérer (sans id, il sera généré par la base)
+     * @return le même produit, mais avec son id désormais renseigné (clé auto-générée)
+     */
     public Produit ajouter(Produit produit) {
         // Requête SQL paramétrée pour insérer un produit avec toutes ses colonnes
         String sql = "INSERT INTO produit (libelle, quantite_stock, prix_unitaire) VALUES (?, ?, ?)";
-        // Prépare la requête en demandant à JDBC de renvoyer les clés générées (l'id auto-incrémenté)
-        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+        // Ouvre une connexion via DatabaseConfig et prépare la requête en demandant à JDBC
+        // de renvoyer les clés générées (l'id auto-incrémenté). Connection et PreparedStatement
+        // seront automatiquement fermés à la fin du bloc, même en cas d'exception.
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
             // Remplace le premier "?" par le libellé du produit
             ps.setString(1, produit.getLibelle());
             // Remplace le deuxième "?" par la quantité en stock
@@ -46,26 +62,37 @@ public class ProduitRepository {
             }
             // Retourne le produit désormais complet avec son id
             return produit;
+
         } catch (SQLException e) {
             // Transforme toute erreur SQL en exception non vérifiée avec un message explicite
             throw new RuntimeException("Erreur lors de l'ajout du produit", e);
         }
     }
 
-    // Récupère la liste complète des produits enregistrés en base
+    /**
+     * Récupère la liste complète des produits enregistrés en base.
+     *
+     * @return la liste de tous les produits (vide si la table est vide)
+     */
     public List<Produit> getTous() {
         // Liste qui contiendra tous les produits récupérés
         List<Produit> produits = new ArrayList<>();
         // Requête SQL simple sans paramètre, sélectionnant toutes les colonnes de la table produit
         String sql = "SELECT * FROM produit";
-        // Crée une instruction SQL classique et exécute directement la requête, en fermant automatiquement les ressources
-        try (Statement stmt = connection.createStatement();
+
+        // Ouvre une connexion, crée une instruction SQL classique et exécute directement
+        // la requête ; les trois ressources (connexion, statement, résultat) seront fermées
+        // automatiquement à la sortie du bloc.
+        try (Connection conn = dbConfig.getConnection();
+             Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
+
             // Parcourt chaque ligne du résultat tant qu'il en existe une suivante
             while (rs.next()) {
                 // Transforme la ligne courante en objet Produit et l'ajoute à la liste
                 produits.add(mapper(rs));
             }
+
         } catch (SQLException e) {
             // Transforme toute erreur SQL en exception non vérifiée avec un message explicite
             throw new RuntimeException("Erreur lors de la récupération des produits", e);
@@ -74,12 +101,20 @@ public class ProduitRepository {
         return produits;
     }
 
-    // Recherche un produit précis à partir de son identifiant technique
+    /**
+     * Recherche un produit précis à partir de son identifiant technique.
+     *
+     * @param id l'identifiant du produit recherché
+     * @return le produit trouvé, ou null si aucun produit ne correspond à cet id
+     */
     public Produit trouverParId(int id) {
         // Requête SQL paramétrée filtrant sur la colonne id
         String sql = "SELECT * FROM produit WHERE id = ?";
-        // Prépare la requête pour éviter les injections SQL
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+        // Ouvre une connexion et prépare la requête pour éviter les injections SQL
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             // Remplace le "?" par l'id recherché
             ps.setInt(1, id);
             // Exécute la requête et ouvre le résultat dans un bloc auto-fermant
@@ -90,6 +125,7 @@ public class ProduitRepository {
                     return mapper(rs);
                 }
             }
+
         } catch (SQLException e) {
             // Transforme toute erreur SQL en exception non vérifiée avec un message explicite
             throw new RuntimeException("Erreur lors de la recherche du produit", e);
@@ -98,15 +134,25 @@ public class ProduitRepository {
         return null;
     }
 
-    // Recherche les produits dont le libellé contient le texte fourni
+    /**
+     * Recherche les produits dont le libellé contient le texte fourni (recherche partielle,
+     * insensible à la position grâce aux "%" de part et d'autre du texte recherché).
+     *
+     * @param libelle le texte à rechercher dans le libellé des produits
+     * @return la liste des produits correspondant à la recherche (vide si aucun résultat)
+     */
     public List<Produit> rechercherParLibelle(String libelle) {
         // Liste qui contiendra les produits correspondant à la recherche
         List<Produit> resultat = new ArrayList<>();
         // Requête SQL paramétrée utilisant LIKE pour une correspondance partielle
         String sql = "SELECT * FROM produit WHERE libelle LIKE ?";
-        // Prépare la requête pour éviter les injections SQL
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+        // Ouvre une connexion et prépare la requête pour éviter les injections SQL
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             // Entoure le libellé recherché de "%" pour permettre une correspondance partielle
+            // (ex : "vis" correspondra à "vis", "tournevis", "visserie", etc.)
             ps.setString(1, "%" + libelle + "%");
             // Exécute la requête et ouvre le résultat dans un bloc auto-fermant
             try (ResultSet rs = ps.executeQuery()) {
@@ -116,6 +162,7 @@ public class ProduitRepository {
                     resultat.add(mapper(rs));
                 }
             }
+
         } catch (SQLException e) {
             // Transforme toute erreur SQL en exception non vérifiée avec un message explicite
             throw new RuntimeException("Erreur lors de la recherche par libellé", e);
@@ -125,26 +172,40 @@ public class ProduitRepository {
     }
 
     /**
-     * Met à jour le stock d'un produit (utilisé après un retrait de stock).
+     * Met à jour le stock d'un produit (utilisé après un retrait ou un ajout de stock).
+     * Ne modifie que la colonne quantite_stock, pas les autres colonnes du produit.
+     *
+     * @param produit le produit dont la nouvelle quantité en stock doit être enregistrée
      */
     public void mettreAJourStock(Produit produit) {
         // Requête SQL paramétrée pour mettre à jour uniquement la quantité en stock
         String sql = "UPDATE produit SET quantite_stock = ? WHERE id = ?";
-        // Prépare la requête de mise à jour
-        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+
+        // Ouvre une connexion et prépare la requête de mise à jour
+        try (Connection conn = dbConfig.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
             // Remplace le premier "?" par la nouvelle quantité en stock
             ps.setInt(1, produit.getQuantiteEnStock());
             // Remplace le deuxième "?" par l'id du produit à mettre à jour
             ps.setInt(2, produit.getId());
             // Exécute la mise à jour en base de données
             ps.executeUpdate();
+
         } catch (SQLException e) {
             // Transforme toute erreur SQL en exception non vérifiée avec un message explicite
             throw new RuntimeException("Erreur lors de la mise à jour du stock", e);
         }
     }
 
-    // Transforme une ligne du ResultSet en objet Produit
+    /**
+     * Transforme une ligne du ResultSet (issue de la table "produit") en objet Produit.
+     * Méthode privée : utilisée uniquement en interne par les autres méthodes du repository.
+     *
+     * @param rs le curseur positionné sur une ligne de résultat SQL valide
+     * @return l'objet Produit correspondant à la ligne courante du ResultSet
+     * @throws SQLException si une colonne attendue est absente ou mal typée
+     */
     private Produit mapper(ResultSet rs) throws SQLException {
         // Construit un nouvel objet Produit à partir des colonnes de la ligne courante du ResultSet
         return new Produit(
