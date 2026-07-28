@@ -1,5 +1,5 @@
 // Déclare que cette classe fait partie du package "view" (couche présentation / interaction utilisateur)
-package view;
+package views;
 
 // Importe l'entité Produit affichée et saisie par cette vue
 import entities.Produit;

@@ -1,5 +1,5 @@
 // Déclare que cette classe fait partie du package "repository" (couche d'accès aux données)
-package repository;
+package repositories;
 
 // Importe le Singleton qui fournit la connexion unique à la base de données
 import config.ConnexionBD;
