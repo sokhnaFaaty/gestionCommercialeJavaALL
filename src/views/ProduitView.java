@@ -26,6 +26,18 @@ public class ProduitView {
         return new Produit(libelle, quantite, prix);
     }
 
+    // Le menu affiche juste les options et retourne le choix de l'utilisateur
+    public int afficherMenu() {
+        System.out.println("\n--- GESTION DES PRODUITS ---");
+        System.out.println("1. Ajouter un produit");
+        System.out.println("2. Lister les produits");
+        System.out.println("3. Rechercher un produit par libellé");
+        System.out.print("Votre choix : ");
+        int choix = scanner.nextInt();
+        scanner.nextLine();
+        return choix;
+    }
+
     // Demande à l'utilisateur l'id d'un produit, en validant que c'est bien un entier
     public int saisirId() {
         return Saisie.lireEntier(scanner, "Id du produit : ");
@@ -53,5 +65,8 @@ public class ProduitView {
             System.out.println(produit.toChaine());
         }
     }
+
+     
+    }
     // Fin de la classe ProduitView
-}
+
