@@ -10,8 +10,8 @@ public class Main {
         ClientService clientService = new ClientService();
         CategorieService categorieService = new CategorieService();
         ProduitService produitService = new ProduitService();
+        PaiementService paiementService = new PaiementService();
         FactureService factureService = new FactureService();
-        PaiementService paiementService = new PaiementService(factureService);
 
         // 2. Initialisation des Vues disponibles (Une seule fois ici)
         ClientView clientView = new ClientView(clientService, scanner);
@@ -21,16 +21,7 @@ public class Main {
         FactureView factureView = new FactureView(factureService, scanner); 
 
         // 3. Boucle du Menu Principal
-        int choix;-- 1. Ajout de la colonne de liaison dans la table produit
-ALTER TABLE produit 
-ADD COLUMN id_categorie INT;
-
--- 2. Ajout de la contrainte de clé étrangère
-ALTER TABLE produit 
-ADD CONSTRAINT FK_produit_categorie 
-FOREIGN KEY (id_categorie) REFERENCES categorie(id) 
-ON DELETE SET NULL;
-
+        int choix;
         do {
             System.out.println("\n--- MENU PRINCIPAL ---");
             System.out.println("1. Gérer les Clients");
