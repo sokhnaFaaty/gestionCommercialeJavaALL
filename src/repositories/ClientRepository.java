@@ -1,4 +1,4 @@
-package repository;
+package repositories;
 
 import entities.Client;
 import config.DatabaseConfig;
