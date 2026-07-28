@@ -17,6 +17,14 @@ CREATE TABLE produit (
     prix_unitaire DOUBLE NOT NULL,
     statut_produit ENUM('disponible', 'rupture') NOT NULL
 );
+CREATE TABLE IF NOT EXISTS categorie (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    libelle VARCHAR(100) NOT NULL UNIQUE
+);
+INSERT INTO categorie (libelle) VALUES ('Électronique');
+INSERT INTO categorie (libelle) VALUES ('Informatique');
+INSERT INTO categorie (libelle) VALUES ('Bureautique');
+
 
 -- 3. Table Commande
 CREATE TABLE commande (
