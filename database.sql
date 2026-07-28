@@ -68,3 +68,13 @@ CREATE TABLE paiement (
     id_facture INT NOT NULL,
     FOREIGN KEY (id_facture) REFERENCES facture(id) ON DELETE CASCADE
 );
+
+-- 1. Ajout de la colonne de liaison dans la table produit
+ALTER TABLE produit 
+ADD COLUMN id_categorie INT;
+
+-- 2. Ajout de la contrainte de clé étrangère
+ALTER TABLE produit 
+ADD CONSTRAINT FK_produit_categorie 
+FOREIGN KEY (id_categorie) REFERENCES categorie(id) 
+ON DELETE SET NULL;
