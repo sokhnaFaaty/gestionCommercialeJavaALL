@@ -10,8 +10,8 @@ public class Main {
         ClientService clientService = new ClientService();
         CategorieService categorieService = new CategorieService();
         ProduitService produitService = new ProduitService();
-        PaiementService paiementService = new PaiementService();
         FactureService factureService = new FactureService();
+        PaiementService paiementService = new PaiementService(factureService);
 
         // 2. Initialisation des Vues disponibles (Une seule fois ici)
         ClientView clientView = new ClientView(clientService, scanner);
