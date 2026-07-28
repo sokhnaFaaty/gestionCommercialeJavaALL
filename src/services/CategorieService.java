@@ -1,23 +1,26 @@
 package services;
 
+import entities.Categorie;
+import repositories.CategorieRepositories;
+import repositories.CategorieRepositories;
 import java.util.List;
 
 public class CategorieService {
-    private CategorieRepository repository;
+    private CategorieRepositories repositories;
 
     public CategorieService() {
-        this.repository = new CategorieRepository();
+        this.repositories = new CategorieRepositories();
     }
 
     public void ajouterCategorie(Categorie categorie) {
-        repository.save(categorie);
+        repositories.save(categorie);
     }
 
     public List<Categorie> listerCategories() {
-        return repository.findAll();
+        return repositories.findAll();
     }
 
     public Categorie rechercherParId(int id) {
-        return repository.findById(id);
+        return repositories.findById(id);
     }
 }
