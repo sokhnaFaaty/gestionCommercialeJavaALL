@@ -1,6 +1,8 @@
 package repositories;
 
-import config.Database;  
+import entities.Categorie;
+
+import config.DatabaseConfig;  
 import java.sql.*;
 
 import java.sql.Connection;
@@ -15,7 +17,7 @@ public class CategorieRepositories {
     public void save(Categorie categorie) {
         String sql = "INSERT INTO categorie (libelle) VALUES (?)";
         
-        try (Connection conn = Database.getConnection();
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             
             pstmt.setString(1, categorie.getLibelle());
@@ -37,7 +39,7 @@ public class CategorieRepositories {
         List<Categorie> categories = new ArrayList<>();
         String sql = "SELECT * FROM categorie";
         
-        try (Connection conn = Database.getConnection();
+        try (Connection conn = DatabaseConfig.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -57,7 +59,7 @@ public class CategorieRepositories {
     public Categorie findById(int id) {
         String sql = "SELECT * FROM categorie WHERE id = ?";
         
-        try (Connection conn = Database.getConnection();
+        try (Connection conn = DatabaseConfig.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setInt(1, id);
