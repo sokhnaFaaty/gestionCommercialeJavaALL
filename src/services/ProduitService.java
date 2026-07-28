@@ -1,10 +1,10 @@
 // Déclare que cette classe fait partie du package "service" (couche métier)
-package service;
+package services;
 
 // Importe l'entité Produit manipulée par ce service
 import entities.Produit;
 // Importe le repository utilisé pour accéder aux données des produits
-import repository.ProduitRepository;
+import repositories.ProduitRepository;
 // Importe List, le type d'interface utilisé pour retourner les collections de produits
 import java.util.List;
 
