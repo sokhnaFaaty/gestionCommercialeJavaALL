@@ -158,4 +158,18 @@ class Saisie {
         }
     }
     // Fin de la classe Saisie
+
+        // Lit un numéro de téléphone valide (uniquement chiffres, espaces, tirets et facultativement un '+')
+    static String lireTelephoneValide(Scanner scanner, String message) {
+        while (true) {
+            String texte = lireTexteNonVide(scanner, message);
+            // Expression régulière : autorise le '+' au début, suivi de chiffres, espaces ou tirets
+            if (!texte.matches("^\\+?[0-9 '-]+$")) {
+                System.out.println("Valeur invalide, veuillez saisir un numéro de téléphone correct.");
+                continue;
+            }
+            return texte;
+        }
+    }
+
 }
