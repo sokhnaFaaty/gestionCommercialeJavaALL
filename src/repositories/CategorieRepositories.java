@@ -1,5 +1,8 @@
 package repositories;
 
+import config.Database;  
+import java.sql.*;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -7,7 +10,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CategorieRepository {
+public class CategorieRepositories {
+
     public void save(Categorie categorie) {
         String sql = "INSERT INTO categorie (libelle) VALUES (?)";
         
@@ -29,6 +33,7 @@ public class CategorieRepository {
     }
 
     public List<Categorie> findAll() {
+
         List<Categorie> categories = new ArrayList<>();
         String sql = "SELECT * FROM categorie";
         
