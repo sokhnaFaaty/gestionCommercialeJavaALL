@@ -16,18 +16,17 @@ public class CategorieView {
         System.out.println("1. Ajouter une catégorie");
         System.out.println("2. Lister les catégories");
         System.out.println("3. Retour au menu principal");
-        System.out.print("Votre choix : ");
-        int choix = scanner.nextInt();
-        scanner.nextLine(); // Vider le tampon
-        return choix;
+        
+        // Utilisation de Saisie pour s'assurer que le choix du menu est bien un entier valide
+        return Saisie.lireEntier(scanner, "Votre choix : ");
     }
 
     public Categorie saisirCategorie() {
-        String libelle = "";
-        while (libelle.trim().isEmpty()) {
-            System.out.print("Entrez le libellé de la catégorie (Obligatoire) : ");
-            libelle = scanner.nextLine();
-        }
+        System.out.println("\n--- AJOUT D'UNE CATEGORIE ---");
+        
+        // Utilisation de Saisie pour bloquer tant que ce ne sont pas des lettres non vides
+        String libelle = Saisie.lireTexteAlphabetique(scanner, "Entrez le libellé de la catégorie (Obligatoire) : ");
+        
         return new Categorie(0, libelle);
     }
 
@@ -45,5 +44,4 @@ public class CategorieView {
     public void afficherMessage(String message) {
         System.out.println(message);
     }
-
 }
