@@ -13,30 +13,23 @@ import java.util.List;
 /**
  * Repository responsable des opérations SQL liées aux commandes.
  * Gère deux tables :
- * - "commande" : les informations générales d'une commande (numéro, date,
- * montant, statut, client)
- * - "ligne_commande" : le détail des produits achetés dans une commande
- * (produit + quantité)
+ *  - "commande"       : les informations générales d'une commande (numéro, date, montant, statut, client)
+ *  - "ligne_commande"  : le détail des produits achetés dans une commande (produit + quantité)
  *
  * Utilise DatabaseConfig pour obtenir une connexion à chaque appel de méthode,
- * plutôt qu'une connexion unique partagée (Singleton) comme le faisait
- * ConnexionBD.
+ * plutôt qu'une connexion unique partagée (Singleton) comme le faisait ConnexionBD.
  * Cela évite de garder une connexion ouverte trop longtemps et rend le code
- * plus sûr en cas d'erreur (la connexion est toujours fermée grâce au
- * try-with-resources).
+ * plus sûr en cas d'erreur (la connexion est toujours fermée grâce au try-with-resources).
  */
 public class CommandeRepository {
 
-    // Fournit une nouvelle connexion à la base de données à chaque appel de
-    // getConnection()
+    // Fournit une nouvelle connexion à la base de données à chaque appel de getConnection()
     private DatabaseConfig dbConfig = new DatabaseConfig();
 
-    // Repository utilisé pour récupérer les infos complètes d'un produit dans une
-    // ligne de commande
+    // Repository utilisé pour récupérer les infos complètes d'un produit dans une ligne de commande
     private ProduitRepository produitRepository = new ProduitRepository();
 
-    // Repository utilisé pour récupérer les infos complètes du client associé à une
-    // commande
+    // Repository utilisé pour récupérer les infos complètes du client associé à une commande
     private ClientRepository clientRepository = new ClientRepository();
 
     /**
@@ -51,11 +44,10 @@ public class CommandeRepository {
         String sql = "INSERT INTO commande (numero, date_commande, montant_total, validee, client_id) "
                 + "VALUES (?, ?, ?, ?, ?)";
 
-        // try-with-resources : Connection et PreparedStatement seront fermés
-        // automatiquement,
+        // try-with-resources : Connection et PreparedStatement seront fermés automatiquement,
         // même en cas d'exception, ce qui évite les fuites de connexions.
         try (Connection conn = dbConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             // On lie chaque paramètre "?" du SQL à une valeur de l'objet commande
             ps.setString(1, commande.getNumero());
@@ -66,8 +58,7 @@ public class CommandeRepository {
 
             ps.executeUpdate(); // exécute l'INSERT
 
-            // Récupère l'ID généré automatiquement par la base (clé primaire
-            // auto-incrémentée)
+            // Récupère l'ID généré automatiquement par la base (clé primaire auto-incrémentée)
             try (ResultSet cles = ps.getGeneratedKeys()) {
                 if (cles.next()) {
                     commande.setId(cles.getInt(1));
@@ -83,19 +74,17 @@ public class CommandeRepository {
     }
 
     /**
-     * Ajoute une ligne de commande (un produit + une quantité) à une commande
-     * existante,
+     * Ajoute une ligne de commande (un produit + une quantité) à une commande existante,
      * puis recalcule et sauvegarde le nouveau montant total de la commande.
      *
-     * @param commande la commande à laquelle on ajoute une ligne (doit déjà avoir
-     *                 un ID)
+     * @param commande la commande à laquelle on ajoute une ligne (doit déjà avoir un ID)
      * @param ligne    la ligne à insérer (produit + quantité)
      */
     public void ajouterLigne(Commande commande, LigneCommande ligne) {
         String sql = "INSERT INTO ligne_commande (commande_id, produit_id, quantite) VALUES (?, ?, ?)";
 
         try (Connection conn = dbConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, commande.getId());
             ps.setInt(2, ligne.getProduit().getId());
@@ -112,17 +101,15 @@ public class CommandeRepository {
     }
 
     /**
-     * Méthode privée utilitaire : met à jour uniquement le montant total d'une
-     * commande
+     * Méthode privée utilitaire : met à jour uniquement le montant total d'une commande
      * en base de données. Appelée automatiquement après l'ajout d'une ligne.
      *
-     * @param commande la commande dont le montant total doit être synchronisé en
-     *                 base
+     * @param commande la commande dont le montant total doit être synchronisé en base
      */
     private void mettreAJourMontantTotal(Commande commande) {
         String sql = "UPDATE commande SET montant_total = ? WHERE id = ?";
         try (Connection conn = dbConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             // On suppose que commande.getMontantTotal() recalcule dynamiquement
             // le total à partir des lignes de commande côté objet Java.
@@ -144,7 +131,7 @@ public class CommandeRepository {
     public void valider(Commande commande) {
         String sql = "UPDATE commande SET validee = TRUE WHERE id = ?";
         try (Connection conn = dbConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, commande.getId());
             ps.executeUpdate();
@@ -166,8 +153,8 @@ public class CommandeRepository {
         String sql = "SELECT * FROM commande";
 
         try (Connection conn = dbConfig.getConnection();
-                Statement stmt = conn.createStatement();
-                ResultSet rs = stmt.executeQuery(sql)) {
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
             // On parcourt chaque ligne du résultat SQL et on la transforme
             // en objet Commande grâce à la méthode mapper()
@@ -186,13 +173,12 @@ public class CommandeRepository {
      * (contrairement à getTous() qui ne charge pas les lignes, pour rester léger).
      *
      * @param id l'identifiant de la commande recherchée
-     * @return la commande trouvée (avec ses lignes remplies), ou null si aucune
-     *         commande ne correspond
+     * @return la commande trouvée (avec ses lignes remplies), ou null si aucune commande ne correspond
      */
     public Commande trouverParId(int id) {
         String sql = "SELECT * FROM commande WHERE id = ?";
         try (Connection conn = dbConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
@@ -211,22 +197,19 @@ public class CommandeRepository {
     }
 
     /**
-     * Récupère toutes les lignes de commande (produit + quantité) associées à une
-     * commande donnée.
+     * Récupère toutes les lignes de commande (produit + quantité) associées à une commande donnée.
      * Pour chaque ligne, va chercher l'objet Produit complet via ProduitRepository
      * (au lieu de stocker uniquement l'ID du produit).
      *
-     * @param commande la commande dont on veut récupérer les lignes (doit avoir un
-     *                 ID)
-     * @return la liste des lignes de commande (vide si la commande n'a aucun
-     *         produit)
+     * @param commande la commande dont on veut récupérer les lignes (doit avoir un ID)
+     * @return la liste des lignes de commande (vide si la commande n'a aucun produit)
      */
     public List<LigneCommande> getLignesDeCommande(Commande commande) {
         List<LigneCommande> lignes = new ArrayList<>();
         String sql = "SELECT * FROM ligne_commande WHERE commande_id = ?";
 
         try (Connection conn = dbConfig.getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setInt(1, commande.getId());
             try (ResultSet rs = ps.executeQuery()) {
@@ -266,7 +249,7 @@ public class CommandeRepository {
                 client);
     }
 
-/**
+    /**
      * Vérifie si une commande existe déjà en base avec ce numéro exact.
      * Utile pour éviter les doublons avant d'insérer une nouvelle commande.
      *
@@ -277,3 +260,15 @@ public class CommandeRepository {
         String sql = "SELECT 1 FROM commande WHERE numero = ?";
         try (Connection conn = dbConfig.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, numero);
+            try (ResultSet rs = ps.executeQuery()) {
+                // rs.next() renvoie true s'il existe au moins une ligne correspondante
+                return rs.next();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erreur lors de la vérification du doublon numéro de commande", e);
+        }
+    }
+}
