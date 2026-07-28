@@ -13,6 +13,7 @@ package views;
 import entities.Client;
 import java.util.Scanner;
 import java.util.List;
+import views.Saisie;
 
 public class ClientView {
     private Scanner scanner;
@@ -21,37 +22,27 @@ public class ClientView {
         this.scanner = scanner;
     }
 
-    // Le menu affiche juste les options et retourne le choix de l'utilisateur
+    // Le menu affiche juste les options et retourne le choix de l'utilisateur de manière sécurisée
     public int afficherMenu() {
         System.out.println("\n--- GESTION DES CLIENTS ---");
         System.out.println("1. Ajouter un client");
         System.out.println("2. Lister les clients");
         System.out.println("3. Rechercher un client par téléphone (Bonus)");
-        System.out.print("Votre choix : ");
-        int choix = scanner.nextInt();
-        scanner.nextLine();
-        return choix;
+        
+        // Empêche le plantage si l'utilisateur saisit une lettre à la place d'un chiffre
+        return Saisie.lireEntier(scanner, "Votre choix : ");
     }
 
-    // Cette méthode crée et retourne un objet Client sans appeler le service
+    // Cette méthode crée et retourne un objet Client en appliquant vos règles de validation
     public Client saisirClient() {
-        String nom = "";
-        while (nom.trim().isEmpty()) {
-            System.out.print("Nom (Obligatoire) : ");
-            nom = scanner.nextLine();
-        }
-
-        String prenom = "";
-        while (prenom.trim().isEmpty()) {
-            System.out.print("Prénom (Obligatoire) : ");
-            prenom = scanner.nextLine();
-        }
-
-        String tel = "";
-        while (tel.trim().isEmpty()) {
-            System.out.print("Téléphone (Obligatoire) : ");
-            tel = scanner.nextLine();
-        }
+        // Bloque les chiffres et les chaînes vides
+        String nom = Saisie.lireTexteAlphabetique(scanner, "Nom (Obligatoire) : ");
+        
+        // Bloque les chiffres et les chaînes vides
+        String prenom = Saisie.lireTexteAlphabetique(scanner, "Prénom (Obligatoire) : ");
+        
+        // Bloque les lettres et les chaînes vides (utilise la validation téléphone ajoutée à Saisie)
+        String tel = Saisie.lireTelephoneValide(scanner, "Téléphone (Obligatoire) : ");
 
         return new Client(0, nom, prenom, tel);
     }
@@ -64,10 +55,9 @@ public class ClientView {
         }
     }
 
-    // Demande le téléphone et le retourne
+    // Demande le téléphone de manière sécurisée et le retourne
     public String saisirTelephone() {
-        System.out.print("Entrez le numéro de téléphone à rechercher : ");
-        return scanner.nextLine();
+        return Saisie.lireTelephoneValide(scanner, "Entrez le numéro de téléphone à rechercher : ");
     }
 
     // Reçoit le client trouvé (ou null) et l'affiche
@@ -79,3 +69,4 @@ public class ClientView {
         }
     }
 }
+
