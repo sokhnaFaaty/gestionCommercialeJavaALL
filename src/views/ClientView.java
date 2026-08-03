@@ -28,6 +28,7 @@ public class ClientView {
         System.out.println("1. Ajouter un client");
         System.out.println("2. Lister les clients");
         System.out.println("3. Rechercher un client par téléphone (Bonus)");
+        System.out.println("4. Retour au menu principal");
         
         // Empêche le plantage si l'utilisateur saisit une lettre à la place d'un chiffre
         return Saisie.lireEntier(scanner, "Votre choix : ");
