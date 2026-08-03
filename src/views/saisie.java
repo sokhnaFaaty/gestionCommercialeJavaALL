@@ -8,6 +8,7 @@ import java.util.Scanner;
  * redemande tant que la valeur saisie n'est
  * pas un nombre valide.
  */
+
 class Saisie {
 
     // Lit un entier au clavier, en redemandant tant que la saisie n'est pas un nombre valide
