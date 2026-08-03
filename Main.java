@@ -10,15 +10,15 @@ public class Main {
         ClientService clientService = new ClientService();
         CategorieService categorieService = new CategorieService();
         ProduitService produitService = new ProduitService();
-        PaiementService paiementService = new PaiementService();
         FactureService factureService = new FactureService();
+        PaiementService paiementService = new PaiementService(factureService);
 
         // 2. Initialisation des Vues disponibles (Une seule fois ici)
-        ClientView clientView = new ClientView(clientService, scanner);
-        CategorieView categorieView = new CategorieView(categorieService, scanner);
-        ProduitView produitView = new ProduitView(produitService, scanner);
+        ClientView clientView = new ClientView(scanner);
+        CategorieView categorieView = new CategorieView(scanner);
+        ProduitView produitView = new ProduitView();
         PaiementView paiementView = new PaiementView(paiementService, factureService, scanner);
-        FactureView factureView = new FactureView(factureService, scanner); 
+        FactureView factureView = new FactureView(factureService, scanner);
 
         // 3. Boucle du Menu Principal
         int choix;
@@ -31,16 +31,41 @@ public class Main {
             System.out.println("5. Gérer les Factures");
             System.out.println("0. Quitter");
             System.out.print("Votre choix : ");
-            
+
             choix = scanner.nextInt();
-            scanner.nextLine(); 
+            scanner.nextLine();
 
             switch (choix) {
-                case 1:
-                    clientView.afficherMenu(); 
+                               case 1:
+                    int choixClient;
+                    do {
+                        choixClient = clientView.afficherMenu(); 
+                        switch (choixClient) {
+                            case 1:
+                                entities.Client nouveauClient = clientView.saisirClient();
+                                clientService.ajouterClient(nouveauClient);
+                                System.out.println("Client ajouté avec succès !");
+                                break;
+                            case 2:
+                                clientView.afficherClients(clientService.listerClients());
+                                break;
+                            case 3:
+                                String tel = clientView.saisirTelephone();
+                                entities.Client clientTrouve = clientService.rechercherParTelephone(tel);
+                                clientView.afficherResultatRecherche(clientTrouve);
+                                break;
+                            case 4:
+                                System.out.println("Retour au menu principal...");
+                                break;
+                            default:
+                                System.out.println("Option invalide.");
+                        }
+                    } while (choixClient != 4);
                     break;
+
+
                 case 2:
-                    categorieView.afficherMenu(); 
+                    categorieView.afficherMenu();
                     break;
                 case 3:
                     produitView.afficherMenu();
