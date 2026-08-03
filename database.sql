@@ -1,3 +1,4 @@
+-- Active: 1782519660172@@127.0.0.1@3306@gestion_commercialeall
 CREATE DATABASE IF NOT EXISTS gestion_commercialeAll;
 USE gestion_commercialeAll;
 
